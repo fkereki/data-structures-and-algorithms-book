@@ -1,0 +1,32 @@
+{
+  "name": "ads_book",
+  "version": "1.0.0",
+  "description": "Code for 'Algorithms and Data Structures in JavaScript' book",
+  "keywords": [
+    "algorithms",
+    "dataStructures",
+    "javascript"
+  ],
+  "author": "Federico Kereki",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fkereki/ads-book.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fkereki/ads-book/issues"
+  },
+  "homepage": "https://github.com/fkereki/ads-book#readme",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "babel-eslint": "^10.1.0",
+    "eslint": "^6.8.0",
+    "prettier": "^2.0.5"
+  },
+  "scripts": {
+    "eslint": "npx eslint ./**/*.js",
+    "prettier": "npx prettier --write ./**/*.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
