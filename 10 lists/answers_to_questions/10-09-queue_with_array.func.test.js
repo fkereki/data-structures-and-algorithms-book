@@ -1,4 +1,4 @@
-const { newQueue, push, print, pop } = require("./queue_with_array.func.js");
+const { newQueue, push, print, pop } = require("./10-09-queue_with_array.func.js");
 
 let s = newQueue();
 s = push(s, 22);

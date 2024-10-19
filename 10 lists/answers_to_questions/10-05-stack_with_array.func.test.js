@@ -4,7 +4,7 @@ const {
   print,
   pop,
   top
-} = require("./stack_with_array.func.js");
+} = require("./10-05-stack_with_array.func.js");
 
 const s = newStack();
 push(s, 22);

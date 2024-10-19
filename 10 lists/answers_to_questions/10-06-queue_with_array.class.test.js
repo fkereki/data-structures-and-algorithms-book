@@ -1,4 +1,4 @@
-const { Queue } = require("./queue_with_array.class.js");
+const { Queue } = require("./10-06-queue_with_array.class.js");
 
 const s = new Queue();
 s.push(22);

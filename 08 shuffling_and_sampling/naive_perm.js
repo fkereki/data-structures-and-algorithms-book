@@ -1,4 +1,4 @@
-const { randomInt } = require("../random");
+const { randomInt } = require("./random");
 
 const naivePerm = (arr) => {
   const n = arr.length;
@@ -10,8 +10,8 @@ const naivePerm = (arr) => {
 };
 
 /*
-problema: tiene n^n formas de funcionar
-pero n^n no es divisible entre n!
+it works in n^n ways, but
+n^n isn't a multiple of n!
 */
 
 const logResults = require("../log_results");
