@@ -8,7 +8,7 @@ const greatest = (bag) =>
   isEmpty(bag) ? undefined : Object.keys(bag.data).sort().pop();
 
 const add = (bag, value) => {
-  bag = { count: bag.count - 1, data: { ...bag.data } };
+  bag = { count: bag.count + 1, data: { ...bag.data } };
   if (find(bag, value)) {
     bag.data[value]++;
   } else {
