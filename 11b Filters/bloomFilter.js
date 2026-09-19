@@ -9,13 +9,13 @@ const EPSILON = 0.01;
  */
 const newBloomFilter = (n, eps = EPSILON) => {
   const ln2 = Math.log(2);
-  const m = Math.ceil(-(n * Math.log(eps)) / (ln2 * ln2));
-  const k = Math.max(1, Math.round((m / n) * ln2));
+  const b = Math.ceil(-(n * Math.log(eps)) / (ln2 * ln2));
+  const h = Math.max(1, Math.round((b / n) * ln2));
 
   return {
-    size: m,
-    hashCount: k,
-    bits: new Array(m).fill(false) // real booleans
+    b,
+    h,
+    bits: new Array(b).fill(false) // real booleans
   };
 };
 
@@ -27,12 +27,12 @@ const newBloomFilter = (n, eps = EPSILON) => {
  * @param {number} seed
  * @returns {number}
  */
-const hashWithSeed = (value, seed) =>
+const hashWithSeed = (value, seed, limit) =>
   crypto
     .createHash("sha256")
     .update(`${seed}:${value}`)
     .digest()
-    .readUInt32BE(0);
+    .readUInt32BE(0) % limit;
 
 /**
  * Computes the k array indices for a given value.
@@ -42,9 +42,8 @@ const hashWithSeed = (value, seed) =>
  * @returns {number[]} array of indices into filter.bits
  */
 const getIndices = (filter, value) =>
-  Array.from(
-    { length: filter.hashCount },
-    (_, i) => hashWithSeed(String(value), i) % filter.size
+  Array.from({ length: filter.hashCount }, (_, i) =>
+    hashWithSeed(String(value), i, filter.size)
   );
 
 /**
