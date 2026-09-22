@@ -1,10 +1,10 @@
 const {
-  newStandardBloomFilter,
+  newDoubleHashingBloomFilter,
   add,
   find
-} = require("./bloomFilter_standard");
+} = require("./bloomFilter_doubleHashing");
 
-const filter = newStandardBloomFilter(10); // expecting ~10 elements
+const filter = newDoubleHashingBloomFilter(10); // expecting ~10 elements
 
 console.log(filter.b);
 
