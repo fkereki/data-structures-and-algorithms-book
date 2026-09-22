@@ -1,28 +1,7 @@
+const { findNextPrime } = require("../00 general_functions/prime");
+
 const EMPTY = undefined;
 const AVAILABLE = null;
-
-const isPrime = (n) => {
-  if (n <= 3) {
-    return true;
-  } else if (n % 2 === 0) {
-    return false;
-  }
-
-  for (let d = 3, q = n; d < q; d += 2) {
-    q = n / d;
-    if (Math.floor(q) === q) {
-      return false;
-    }
-  }
-  return true;
-};
-
-const findNextPrime = (n) => {
-  while (!isPrime(n)) {
-    n++;
-  }
-  return n;
-};
 
 /*
 let x = new Array(100).fill(0).map((v,i)=>i)

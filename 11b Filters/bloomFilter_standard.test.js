@@ -1,6 +1,10 @@
-const { newBloomFilter, add, find } = require("./bloomFilter");
+const {
+  newStandardBloomFilter,
+  add,
+  find
+} = require("./standardBloomFilter");
 
-const filter = newBloomFilter(10); // expecting ~10 elements
+const filter = newStandardBloomFilter(10); // expecting ~10 elements
 
 add(filter, "hello");
 add(filter, "world");
