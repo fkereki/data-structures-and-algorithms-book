@@ -4,6 +4,7 @@ const { findNextPrime } = require("../00 general_functions/prime");
 
 const EPSILON = 0.01;
 const LN2 = Math.log(2);
+const LN2_SQ = LN2 * LN2;
 
 /**
  * Formulas used:
@@ -11,7 +12,7 @@ const LN2 = Math.log(2);
  *   k = (m / n) * ln(2)                  -> number of hash functions
  */
 const newDoubleHashingBloomFilter = (n, eps = EPSILON) => {
-  const b = findNextPrime(Math.ceil(-(n * Math.log(eps)) / (LN2 * LN2)));
+  const b = findNextPrime(Math.ceil(-(n * Math.log(eps)) / LN2_SQ));
   const h = Math.max(1, Math.round((b / n) * LN2));
 
   return {

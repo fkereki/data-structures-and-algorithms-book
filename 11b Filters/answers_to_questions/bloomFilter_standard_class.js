@@ -2,6 +2,7 @@ const crypto = require("crypto");
 
 const EPSILON = 0.01;
 const LN2 = Math.log(2);
+const LN2_SQ = LN2 * LN2;
 
 class StandardBloomFilter {
   #b;
@@ -9,17 +10,19 @@ class StandardBloomFilter {
   #bits;
 
   constructor(n, eps = EPSILON) {
-    this.#b = Math.ceil(-(n * Math.log(eps)) / (LN2 * LN2));
+    this.#b = Math.ceil(-(n * Math.log(eps)) / LN2_SQ);
     this.#h = Math.max(1, Math.round((this.#b / n) * LN2));
     this.#bits = new Array(this.#b).fill(false);
   }
 
   static hashWithSeed(value, seed, limit) {
-    return crypto
-      .createHash("sha256")
-      .update(`${seed}:${value}`)
-      .digest()
-      .readUInt32BE(0) % limit;
+    return (
+      crypto
+        .createHash("sha256")
+        .update(`${seed}:${value}`)
+        .digest()
+        .readUInt32BE(0) % limit
+    );
   }
 
   getIndices(value) {
