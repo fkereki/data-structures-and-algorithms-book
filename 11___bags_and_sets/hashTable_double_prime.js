@@ -1,4 +1,4 @@
-const { findNextPrime } = require("../00 general_functions/prime");
+const { findNextPrime } = require("../00___general_functions/prime");
 
 const EMPTY = undefined;
 const AVAILABLE = null;

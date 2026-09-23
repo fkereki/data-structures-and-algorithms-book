@@ -1,6 +1,6 @@
 const crypto = require("crypto");
 
-const { findNextPrime } = require("../00 general_functions/prime");
+const { findNextPrime } = require("../00___general_functions/prime");
 
 const EPSILON = 0.01;
 const LN2 = Math.log(2);
