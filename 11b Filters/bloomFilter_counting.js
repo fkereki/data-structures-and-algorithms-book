@@ -11,7 +11,7 @@ const newCountingBloomFilter = (n, eps = EPSILON) => {
   return {
     b,
     h,
-    bits: new Array(b).fill(0)
+    count: new Array(b).fill(0)
   };
 };
 
@@ -24,23 +24,23 @@ const hashWithSeed = (value, seed, limit) =>
 
 const getIndices = (filter, value) =>
   Array.from({ length: filter.h }, (_, i) =>
-    hashWithSeed(String(value), i, filter.size)
+    hashWithSeed(String(value), i, filter.b)
   );
 
 const add = (filter, value) => {
   for (const idx of getIndices(filter, value)) {
-    filter.bits[idx]++;
+    filter.count[idx]++;
   }
 };
 
 const find = (filter, value) =>
-  getIndices(filter, value).every((idx) => filter.bits[idx] > 0);
+  getIndices(filter, value).every((idx) => filter.count[idx] > 0);
 
 const removeWithCheck = (filter, value) => {
   if (find(filter, value)) {
     for (const idx of getIndices(filter, value)) {
-      if (filter.bits[idx] > 0) {
-        filter.bits[idx]--;
+      if (filter.count[idx] > 0) {
+        filter.count[idx]--;
       }
     }
   }
@@ -48,8 +48,8 @@ const removeWithCheck = (filter, value) => {
 
 const remove = (filter, value) => {
   for (const idx of getIndices(filter, value)) {
-    if (filter.bits[idx] > 0) {
-      filter.bits[idx]--;
+    if (filter.count[idx] > 0) {
+      filter.count[idx]--;
     }
   }
 };
