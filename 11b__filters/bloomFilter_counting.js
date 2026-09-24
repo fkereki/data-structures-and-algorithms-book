@@ -36,17 +36,15 @@ const add = (filter, value) => {
 const find = (filter, value) =>
   getIndices(filter, value).every((idx) => filter.count[idx] > 0);
 
-const removeWithCheck = (filter, value) => {
+const removeRecklessly = (filter, value) => {
   if (find(filter, value)) {
     for (const idx of getIndices(filter, value)) {
-      if (filter.count[idx] > 0) {
-        filter.count[idx]--;
-      }
+      filter.count[idx]--;
     }
   }
 };
 
-const remove = (filter, value) => {
+const removeWithoutCheck = (filter, value) => {
   for (const idx of getIndices(filter, value)) {
     if (filter.count[idx] > 0) {
       filter.count[idx]--;
@@ -54,4 +52,19 @@ const remove = (filter, value) => {
   }
 };
 
-module.exports = { newCountingBloomFilter, add, find };
+const removeWithCheck = (filter, value) => {
+  if (find(filter, value)) {
+    for (const idx of getIndices(filter, value)) {
+      filter.count[idx]--;
+    }
+  }
+};
+
+module.exports = {
+  newCountingBloomFilter,
+  add,
+  find,
+  removeRecklessly,
+  removeWithoutCheck,
+  removeWithCheck
+};
