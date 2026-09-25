@@ -36,23 +36,7 @@ const add = (filter, value) => {
 const find = (filter, value) =>
   getIndices(filter, value).every((idx) => filter.count[idx] > 0);
 
-const removeRecklessly = (filter, value) => {
-  if (find(filter, value)) {
-    for (const idx of getIndices(filter, value)) {
-      filter.count[idx]--;
-    }
-  }
-};
-
-const removeWithoutCheck = (filter, value) => {
-  for (const idx of getIndices(filter, value)) {
-    if (filter.count[idx] > 0) {
-      filter.count[idx]--;
-    }
-  }
-};
-
-const removeWithCheck = (filter, value) => {
+const remove = (filter, value) => {
   if (find(filter, value)) {
     for (const idx of getIndices(filter, value)) {
       filter.count[idx]--;
@@ -64,7 +48,5 @@ module.exports = {
   newCountingBloomFilter,
   add,
   find,
-  removeRecklessly,
-  removeWithoutCheck,
-  removeWithCheck
+  remove
 };
