@@ -15,17 +15,18 @@
  * read and follow.
  */
 
-const crypto = require("crypto");
+const { hashWithSeed } = require("../00___general_functions/hashWithSeed");
 
 const EPSILON = 0.01;
 const LN2 = Math.log(2);
 const LN2_SQ = LN2 * LN2;
+const HASH_BITS = 32;
 
 const newQuotientFilter = (n, eps = EPSILON) => {
   const b = Math.ceil(-(n * Math.log(eps)) / LN2_SQ);
   const q = Math.max(1, Math.ceil(Math.log(b) / LN2));
   const s = Math.max(1, Math.ceil(b / q));
-  const d = Math.max(1, Math.floor(2 ** 32 / s));
+  const d = Math.max(1, Math.floor(2 ** HASH_BITS / s));
 
   return {
     b,
@@ -35,20 +36,14 @@ const newQuotientFilter = (n, eps = EPSILON) => {
   };
 };
 
-const hashWithSeed = (value, seed, limit) =>
-  crypto
-    .createHash("sha256")
-    .update(`${seed}:${value}`)
-    .digest()
-    .readUInt32BE(0) % limit;
-
 const getIndices = (filter, value) =>
-  Array.from({ length: filter.q }, (_, i) =>
-    hashWithSeed(String(value), i, filter.slots.length)
+  Array.from(
+    { length: filter.q },
+    (_, i) => hashWithSeed(String(value), i) % filter.slots.length
   );
 
 const getFingerprint = (filter, value) => {
-  const fullHash = hashWithSeed(String(value), 0, 2 ** 32);
+  const fullHash = hashWithSeed(String(value), 0);
   const quotient = Math.floor(fullHash / filter.d);
   const remainder = fullHash % filter.d;
 

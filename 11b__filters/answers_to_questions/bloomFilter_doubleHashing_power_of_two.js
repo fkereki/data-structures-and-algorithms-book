@@ -1,4 +1,4 @@
-const crypto = require("crypto");
+const { hashWithSeed } = require("../../00___general_functions/hashWithSeed");
 
 const EPSILON = 0.01;
 const LN2 = Math.log(2);
@@ -17,17 +17,10 @@ const newDoubleHashingBloomFilterPowerOfTwo = (n, eps = EPSILON) => {
   };
 };
 
-const hashWithSeed = (value, seed, limit) =>
-  crypto
-    .createHash("sha256")
-    .update(`${seed}:${value}`)
-    .digest()
-    .readUInt32BE(0) % limit;
-
 const getIndices = (filter, value) => {
   const stringValue = String(value);
-  const h1 = hashWithSeed(stringValue, 0, filter.b);
-  const h2 = hashWithSeed(stringValue, 1, filter.b) | 1;
+  const h1 = hashWithSeed(stringValue, 0) % filter.b;
+  const h2 = (hashWithSeed(stringValue, 1) % filter.b) | 1;
 
   return Array.from({ length: filter.h }, (_, i) => (h1 + i * h2) % filter.b);
 };

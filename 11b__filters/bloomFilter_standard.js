@@ -1,4 +1,4 @@
-const crypto = require("crypto");
+const { hashWithSeed } = require("../00___general_functions/hashWithSeed");
 
 const EPSILON = 0.01;
 const LN2 = Math.log(2);
@@ -15,16 +15,10 @@ const newStandardBloomFilter = (n, eps = EPSILON) => {
   };
 };
 
-const hashWithSeed = (value, seed, limit) =>
-  crypto
-    .createHash("sha256")
-    .update(`${seed}:${value}`)
-    .digest()
-    .readUInt32BE(0) % limit;
-
 const getIndices = (filter, value) =>
-  Array.from({ length: filter.h }, (_, i) =>
-    hashWithSeed(String(value), i, filter.b)
+  Array.from(
+    { length: filter.h },
+    (_, i) => hashWithSeed(String(value), i) % filter.b
   );
 
 const add = (filter, value) => {

@@ -1,5 +1,4 @@
-const crypto = require("crypto");
-
+const { hashWithSeed } = require("../00___general_functions/hashWithSeed");
 const { findNextPrime } = require("../00___general_functions/prime");
 
 const EPSILON = 0.01;
@@ -21,13 +20,6 @@ const newDoubleHashingBloomFilter = (n, eps = EPSILON) => {
     bits: new Array(b).fill(false)
   };
 };
-
-const hashWithSeed = (value, seed) =>
-  crypto
-    .createHash("sha256")
-    .update(`${seed}:${value}`)
-    .digest()
-    .readUInt32BE(0);
 
 const getIndices = (filter, value) => {
   const stringValue = String(value);
