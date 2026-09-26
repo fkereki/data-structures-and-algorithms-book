@@ -1,20 +1,3 @@
-/*
- * Quotient filters store fingerprints of values in a table of slots.
- * A value is hashed, then split into two parts: a quotient and a remainder.
- * The quotient selects a bucket, while the remainder is stored in that bucket.
- *
- * This implementation keeps the same overall style as the Bloom filter files:
- * it uses SHA-256 with a seed, derives a deterministic index, and exposes the
- * usual add/find/remove operations. The code is intentionally simple and meant
- * to illustrate the idea rather than provide a production-grade quotient filter.
- *
- * In a true quotient filter, the table is organized so that entries can be
- * inserted, found, and removed by looking at the quotient bucket and then
- * scanning neighboring slots using the remainders. Here, we keep the same
- * conceptual idea in a compact array-of-buckets form to make the code easy to
- * read and follow.
- */
-
 const { hashWithSeed } = require("../00___general_functions/hashWithSeed");
 
 const EPSILON = 0.01;
@@ -52,24 +35,23 @@ const getFingerprint = (filter, value) => {
 
 const add = (filter, value) => {
   const { quotient, remainder } = getFingerprint(filter, value);
-  const bucket = filter.slots[quotient] || [];
+  const bucket = filter.slots[quotient];
 
   if (!bucket.includes(remainder)) {
     bucket.push(remainder);
-    filter.slots[quotient] = bucket;
   }
 };
 
 const find = (filter, value) => {
   const { quotient, remainder } = getFingerprint(filter, value);
-  const bucket = filter.slots[quotient] || [];
+  const bucket = filter.slots[quotient];
 
   return bucket.includes(remainder);
 };
 
 const remove = (filter, value) => {
   const { quotient, remainder } = getFingerprint(filter, value);
-  const bucket = filter.slots[quotient] || [];
+  const bucket = filter.slots[quotient];
 
   filter.slots[quotient] = bucket.filter((entry) => entry !== remainder);
 };

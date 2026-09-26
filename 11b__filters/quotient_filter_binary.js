@@ -34,24 +34,23 @@ const getFingerprint = (filter, value) => {
 
 const add = (filter, value) => {
   const { quotient, remainder } = getFingerprint(filter, value);
-  const bucket = filter.slots[quotient] || [];
+  const bucket = filter.slots[quotient];
 
   if (!bucket.includes(remainder)) {
     bucket.push(remainder);
-    filter.slots[quotient] = bucket;
   }
 };
 
 const find = (filter, value) => {
   const { quotient, remainder } = getFingerprint(filter, value);
-  const bucket = filter.slots[quotient] || [];
+  const bucket = filter.slots[quotient];
 
   return bucket.includes(remainder);
 };
 
 const remove = (filter, value) => {
   const { quotient, remainder } = getFingerprint(filter, value);
-  const bucket = filter.slots[quotient] || [];
+  const bucket = filter.slots[quotient];
 
   filter.slots[quotient] = bucket.filter((entry) => entry !== remainder);
 };
