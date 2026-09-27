@@ -64,9 +64,6 @@ function createQuotientFilter(n, eps = EPSILON) {
 // ---------------------------------------------------------------------------
 // Hashing an item into (quotient, remainder)
 // ---------------------------------------------------------------------------
-
-// Use the same hash function family as the Bloom filter implementation,
-// but with a single 32-bit fingerprint for the quotient filter.
 function fingerprintOf(filter, item) {
   const hash = hashWithSeed(String(item), 0) >>> 0;
   const mask = filter.p === 32 ? 0xffffffff : (1 << filter.p) - 1;
@@ -75,10 +72,6 @@ function fingerprintOf(filter, item) {
   const remainder = fingerprint & ((1 << filter.r) - 1);
   return { quotient, remainder };
 }
-
-// ---------------------------------s * 2------------------------------------------
-// Small helpers shared by add / contains / remove
-// ---------------------------------------------------------------------------
 
 // A slot holds no data at all exactly when none of its 3 flags are set.
 function isSlotEmpty(filter, slot) {
