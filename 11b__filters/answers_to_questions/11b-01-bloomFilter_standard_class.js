@@ -15,7 +15,7 @@ class StandardBloomFilter {
     this.#bits = new Array(this.#b).fill(false);
   }
 
-  getIndices(value) {
+  #getIndices(value) {
     return Array.from(
       { length: this.#h },
       (_, i) => hashWithSeed(String(value), i) % this.#b
@@ -23,13 +23,13 @@ class StandardBloomFilter {
   }
 
   add(value) {
-    for (const idx of this.getIndices(value)) {
+    for (const idx of this.#getIndices(value)) {
       this.#bits[idx] = true;
     }
   }
 
   find(value) {
-    return this.getIndices(value).every((idx) => this.#bits[idx] === true);
+    return this.#getIndices(value).every((idx) => this.#bits[idx] === true);
   }
 }
 

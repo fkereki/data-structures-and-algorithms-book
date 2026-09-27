@@ -4,7 +4,7 @@ const EPSILON = 0.01;
 const LN2 = Math.log(2);
 const LN2_SQ = LN2 * LN2;
 
-const newStandardBloomFilter = (n, eps = EPSILON) => {
+const newClosureBloomFilter = (n, eps = EPSILON) => {
   const b = Math.ceil(-(n * Math.log(eps)) / LN2_SQ);
   const h = Math.max(1, Math.round((b / n) * LN2));
   const bits = new Array(b).fill(false);
@@ -24,4 +24,4 @@ const newStandardBloomFilter = (n, eps = EPSILON) => {
   return { add, find };
 };
 
-module.exports = { StandardBloomFilter: newStandardBloomFilter };
+module.exports = { newClosureBloomFilter };
