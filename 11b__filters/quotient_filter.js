@@ -282,13 +282,11 @@ const remove = (qf, item) => {
     const next = wrapSlot(qf, slot + 1);
 
     if (isSlotEmpty(qf, next) || !qf.slots[next].isShifted) {
-      qf.c--;
-
       qf.slots[slot].rem = 0;
       qf.slots[slot].isOcc = false;
       qf.slots[slot].isCont = false;
       qf.slots[slot].isShifted = false;
-
+      qf.c--;
       break;
     }
 
