@@ -9,20 +9,12 @@ const createQuotientFilter = (n, eps = EPSILON) => {
   const p = Math.ceil(Math.log2(n / eps));
   const q = Math.ceil(Math.log2(n / ALPHA));
   const r = p - q;
+  const s = 1 << q;
   const c = 0;
 
   if (p < 1 || q < 0 || p > 24 || p <= q) {
     throw new Error("Quotient filter: bad parameters");
   }
-
-  const s = 1 << q;
-
-  const makeSlot = () => ({
-    rem: 0,
-    isOcc: false,
-    isCont: false,
-    isShifted: false
-  });
 
   return {
     p,
@@ -30,7 +22,12 @@ const createQuotientFilter = (n, eps = EPSILON) => {
     r,
     s,
     c,
-    slots: Array.from({ length: s }, makeSlot)
+    slots: Array.from({ length: s }, () => ({
+      rem: 0,
+      isOcc: false,
+      isCont: false,
+      isShifted: false
+    }))
   };
 };
 
@@ -56,25 +53,18 @@ const findClusterStart = (qf, slot) => {
   return slot;
 };
 
-const locateRun = (qf, homeSlot) => {
-  let clusterStart = findClusterStart(qf, homeSlot);
+const locateRun = (qf, quot) => {
+  let clusterStart = findClusterStart(qf, quot);
   let runNumber = 0;
+
   let slot = clusterStart;
-
-  for (;;) {
-    if (qf.slots[slot].isOcc) {
-      runNumber++;
-    }
-
-    if (slot === homeSlot) {
-      break;
-    }
-
+  while (true) {
+    if (qf.slots[slot].isOcc) runNumber++;
+    if (slot === quot) break;
     slot = wrapSlot(qf, slot + 1);
   }
 
   let runStart = clusterStart;
-
   for (
     let currentRun = 1;
     currentRun < runNumber;
@@ -88,9 +78,8 @@ const locateRun = (qf, homeSlot) => {
   return runStart;
 };
 
-const clusterRunQuotients = (qf, clusterStart) => {
-  const quotients = [];
-  let slot = wrapSlot(qf, clusterStart);
+const clusterRunQuotients = (qf, slot) => {
+  const quots = [];
 
   let is1stPass = true;
   for (;;) {
@@ -105,14 +94,14 @@ const clusterRunQuotients = (qf, clusterStart) => {
       (is1stPass || qf.slots[slot].isShifted) &&
       qf.slots[slot].isOcc
     ) {
-      quotients.push(slot);
+      quots.push(slot);
     }
 
     slot = wrapSlot(qf, slot + 1);
     is1stPass = false;
   }
 
-  return quotients;
+  return quots;
 };
 
 const add = (qf, item) => {
@@ -120,19 +109,19 @@ const add = (qf, item) => {
     throw new Error("Quotient filter load limit reached");
   }
 
-  const [quotient, rem] = fingerprintOf(qf, item);
+  const [quot, rem] = fingerprintOf(qf, item);
 
-  if (isSlotEmpty(qf, quotient)) {
-    const slot = qf.slots[quotient];
+  if (isSlotEmpty(qf, quot)) {
+    const slot = qf.slots[quot];
     slot.rem = rem;
     slot.isOcc = true;
     qf.c++;
     return;
   }
 
-  const runAlreadyExists = qf.slots[quotient].isOcc;
-  qf.slots[quotient].isOcc = true;
-  const runStart = locateRun(qf, quotient);
+  const runAlreadyExists = qf.slots[quot].isOcc;
+  qf.slots[quot].isOcc = true;
+  const runStart = locateRun(qf, quot);
 
   let insertAt;
   let is1stOfRun;
@@ -151,7 +140,7 @@ const add = (qf, item) => {
       slot = wrapSlot(qf, slot + 1);
     }
 
-    insertAt = wrapSlot(qf, slot);
+    insertAt = slot;
     is1stOfRun = insertAt === runStart;
   } else {
     insertAt = runStart;
@@ -163,7 +152,7 @@ const add = (qf, item) => {
     insertAt,
     rem,
     !is1stOfRun,
-    insertAt !== quotient,
+    insertAt !== quot,
     runAlreadyExists && is1stOfRun
   );
 };
@@ -179,47 +168,47 @@ const shiftRightAndInsert = (
   let carryRem = rem;
   let carryContinuation = continuationFlag;
   let carryShifted = shiftedFlag;
-  let currentSlot = wrapSlot(qf, slot);
   let is1stIteration = true;
 
   for (;;) {
-    if (isSlotEmpty(qf, currentSlot)) {
-      qf.slots[currentSlot].rem = carryRem;
-      qf.slots[currentSlot].isCont = carryContinuation;
-      qf.slots[currentSlot].isShifted = carryShifted;
+    if (isSlotEmpty(qf, slot)) {
+      qf.slots[slot].rem = carryRem;
+      qf.slots[slot].isCont = carryContinuation;
+      qf.slots[slot].isShifted = carryShifted;
       qf.c++;
       return;
     }
 
-    const displacedRem = qf.slots[currentSlot].rem;
-    let displacedContinuation = qf.slots[currentSlot].isCont;
+    const displacedRem = qf.slots[slot].rem;
+    let displacedContinuation = qf.slots[slot].isCont;
 
     if (is1stIteration && forceNextContinuation) {
       displacedContinuation = true;
     }
 
-    qf.slots[currentSlot].rem = carryRem;
-    qf.slots[currentSlot].isCont = carryContinuation;
-    qf.slots[currentSlot].isShifted = carryShifted;
+    qf.slots[slot].rem = carryRem;
+    qf.slots[slot].isCont = carryContinuation;
+    qf.slots[slot].isShifted = carryShifted;
 
     carryRem = displacedRem;
     carryContinuation = displacedContinuation;
     carryShifted = true;
 
-    currentSlot = wrapSlot(qf, currentSlot + 1);
+    slot = wrapSlot(qf, slot + 1);
     is1stIteration = false;
   }
 };
 
 const find = (qf, item) => {
-  const [homeSlot, rem] = fingerprintOf(qf, item);
+  const [quot, rem] = fingerprintOf(qf, item);
 
-  if (!qf.slots[homeSlot].isOcc) {
+  if (!qf.slots[quot].isOcc) {
     return false;
   }
 
-  const runStart = locateRun(qf, homeSlot);
-  for (let slot = runStart; ; slot = wrapSlot(qf, slot + 1)) {
+  const runStart = locateRun(qf, quot);
+  let slot = runStart;
+  while (true) {
     if (
       isSlotEmpty(qf, slot) ||
       (slot !== runStart && !qf.slots[slot].isCont) ||
@@ -228,21 +217,21 @@ const find = (qf, item) => {
       return false;
     } else if (qf.slots[slot].rem === rem) {
       return true;
+    } else {
+      slot = wrapSlot(qf, slot + 1);
     }
   }
-
-  return false;
 };
 
 const remove = (qf, item) => {
-  const [homeSlot, rem] = fingerprintOf(qf, item);
+  const [quot, rem] = fingerprintOf(qf, item);
 
-  if (!qf.slots[homeSlot].isOcc) {
+  if (!qf.slots[quot].isOcc) {
     return false;
   }
 
-  const clusterStart = findClusterStart(qf, homeSlot);
-  const runStart = locateRun(qf, homeSlot);
+  const clusterStart = findClusterStart(qf, quot);
+  const runStart = locateRun(qf, quot);
 
   let target = runStart;
 
@@ -269,10 +258,10 @@ const remove = (qf, item) => {
     !isSlotEmpty(qf, nextSlot) && qf.slots[nextSlot].isCont;
 
   const runQuotients = clusterRunQuotients(qf, clusterStart);
-  let currentRunIndex = runQuotients.indexOf(homeSlot);
+  let currentRunIndex = runQuotients.indexOf(quot);
 
   if (wasRunStart && !hasMoreOfSameRun) {
-    qf.slots[homeSlot].isOcc = false;
+    qf.slots[quot].isOcc = false;
   }
 
   let slot = target;
