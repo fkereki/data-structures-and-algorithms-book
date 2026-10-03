@@ -81,24 +81,15 @@ const locateRun = (qf, quot) => {
 const clusterRunQuotients = (qf, slot) => {
   const quots = [];
 
-  let is1stPass = true;
-  for (;;) {
-    if (
-      isSlotEmpty(qf, slot) ||
-      (!is1stPass && !qf.slots[slot].isShifted)
-    ) {
-      break;
-    }
-
-    if (
-      (is1stPass || qf.slots[slot].isShifted) &&
-      qf.slots[slot].isOcc
-    ) {
+  for (
+    let is1stPass = true;
+    !isSlotEmpty(qf, slot) &&
+    (is1stPass || qf.slots[slot].isShifted);
+    slot = wrapSlot(qf, slot + 1), is1stPass = false
+  ) {
+    if (qf.slots[slot].isOcc) {
       quots.push(slot);
     }
-
-    slot = wrapSlot(qf, slot + 1);
-    is1stPass = false;
   }
 
   return quots;
@@ -199,6 +190,52 @@ const shiftRightAndInsert = (
   }
 };
 
+const shiftLeftAndRemove = (
+  qf,
+  slot,
+  runQuotients,
+  currentRunIndex,
+  wasRunStart,
+  hasMoreOfSameRun
+) => {
+  let is1stIteration = true;
+
+  for (;;) {
+    const next = wrapSlot(qf, slot + 1);
+
+    if (isSlotEmpty(qf, next) || !qf.slots[next].isShifted) {
+      qf.slots[slot].rem = 0;
+      qf.slots[slot].isOcc = false;
+      qf.slots[slot].isCont = false;
+      qf.slots[slot].isShifted = false;
+      qf.c--;
+      break;
+    }
+
+    if (!qf.slots[next].isCont) {
+      currentRunIndex++;
+    }
+
+    let continuationToWrite = qf.slots[next].isCont;
+    if (is1stIteration && wasRunStart && hasMoreOfSameRun) {
+      continuationToWrite = false;
+    }
+
+    qf.slots[slot].rem = qf.slots[next].rem;
+    qf.slots[slot].isCont = continuationToWrite;
+
+    if (!continuationToWrite) {
+      qf.slots[slot].isShifted =
+        slot !== runQuotients[currentRunIndex];
+    } else {
+      qf.slots[slot].isShifted = true;
+    }
+
+    slot = next;
+    is1stIteration = false;
+  }
+};
+
 const find = (qf, item) => {
   const [quot, rem] = fingerprintOf(qf, item);
 
@@ -264,43 +301,14 @@ const remove = (qf, item) => {
     qf.slots[quot].isOcc = false;
   }
 
-  let slot = target;
-  let is1stIteration = true;
-
-  for (;;) {
-    const next = wrapSlot(qf, slot + 1);
-
-    if (isSlotEmpty(qf, next) || !qf.slots[next].isShifted) {
-      qf.slots[slot].rem = 0;
-      qf.slots[slot].isOcc = false;
-      qf.slots[slot].isCont = false;
-      qf.slots[slot].isShifted = false;
-      qf.c--;
-      break;
-    }
-
-    if (!qf.slots[next].isCont) {
-      currentRunIndex++;
-    }
-
-    let continuationToWrite = qf.slots[next].isCont;
-    if (is1stIteration && wasRunStart && hasMoreOfSameRun) {
-      continuationToWrite = false;
-    }
-
-    qf.slots[slot].rem = qf.slots[next].rem;
-    qf.slots[slot].isCont = continuationToWrite;
-
-    if (!continuationToWrite) {
-      qf.slots[slot].isShifted =
-        slot !== runQuotients[currentRunIndex];
-    } else {
-      qf.slots[slot].isShifted = true;
-    }
-
-    slot = next;
-    is1stIteration = false;
-  }
+  shiftLeftAndRemove(
+    qf,
+    target,
+    runQuotients,
+    currentRunIndex,
+    wasRunStart,
+    hasMoreOfSameRun
+  );
 
   return true;
 };
