@@ -209,7 +209,7 @@ const shiftLeftAndRemove = (
       qf.slots[slot].isCont = false;
       qf.slots[slot].isShifted = false;
       qf.c--;
-      break;
+      return;
     }
 
     if (!qf.slots[next].isCont) {
