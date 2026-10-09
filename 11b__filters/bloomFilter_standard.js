@@ -1,4 +1,6 @@
-const { hashWithSeed } = require("../00___general_functions/hashWithSeed");
+const {
+  hashWithSeed
+} = require("../00___general_functions/hashWithSeed");
 
 const EPSILON = 0.01;
 const LN2 = Math.log(2);
@@ -11,7 +13,7 @@ const newStandardBloomFilter = (n, eps = EPSILON) => {
   return {
     b,
     h,
-    bits: new Array(b).fill(false)
+    bits: new Array(b).fill(0)
   };
 };
 
@@ -23,11 +25,13 @@ const getIndices = (filter, value) =>
 
 const add = (filter, value) => {
   for (const idx of getIndices(filter, value)) {
-    filter.bits[idx] = true;
+    filter.bits[idx] = 1;
   }
 };
 
 const find = (filter, value) =>
-  getIndices(filter, value).every((idx) => filter.bits[idx] === true);
+  getIndices(filter, value).every(
+    (idx) => filter.bits[idx] === 1
+  );
 
 module.exports = { newStandardBloomFilter, add, find };

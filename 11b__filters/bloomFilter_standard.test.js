@@ -18,7 +18,7 @@ console.log(find(filter, "foo")); // false (almost certainly)
 // Now, dirty trick to make the "foo" search return true, even though we didn't add it.
 
 for (let i = 0; i < filter.bits.length; i += 1) {
-  filter.bits[i] = true;
+  filter.bits[i] = 1;
 }
 
-console.log(find(filter, "foo")); // true (because we cheated and set all bits to true)
+console.log(find(filter, "foo")); // true (because we cheated and set all bits to 1)
