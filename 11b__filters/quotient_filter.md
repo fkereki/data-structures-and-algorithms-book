@@ -241,14 +241,71 @@ shift     1   1   1*  0   0   1   1   1   1   1   1   1   1   0   0   0
 rem       V*  Y*  Z*  .   E   G   K   L   B   D   C   F   W   .   .   U
 ```
 
+## Example 5: Middle of a run, in the middle of a cluster
+
+**Insert `C` at q=5.** The q=5 run already exists (`occ[5]=1`), so no occupancy bit changes. To find it, start at the cluster start (slot 4) and count the `occ` bits up to q=5 (slots 4 and 5, so it's the 2nd run). Then skip to the 2nd run head, which is slot 8 (the second `cont=0` slot in the cluster). The run is `B` (slot 8), `D` (slot 9). `C` sorts after `B` and before `D`, so it goes into slot 9, and `D` and the whole q=7 run (`C`, `F`, `W`) shift one slot right. To avoid confusion, the new `C` belongs to q=5, while the `C` already in the table belongs to q=7. The q=7 run ends in slot 13, which was empty.
+
+**Changes needed:**
+
+- `occ` doesn't change (`occ[5]` is already 1).
+- `B` doesn't move, so slot 8 is untouched. It stays the head of its run.
+- The new `C` (q=5) goes into slot 9 as a continuation (`cont=1`) and displaced (`shift=1`, since its home is slot 5). Both bits already had these values, so only `rem[9]` changes. The head of the run doesn't change, which is the contrast with addition example 3.
+- `D` moves to slot 10, so `cont[10]`: 0 → 1.
+- `C` (q=7) moves to slot 11 as the head of its run, so `cont[11]`: 1 → 0.
+- `F` moves to slot 12 (`cont` stays 1).
+- `W` moves to slot 13, which was empty, so `cont[13]` and `shift[13]` become 1.
+- `rem` changes in slots 9 to 13.
+
+```
+slot      0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+occ       0   0   0   0   1   1   0   1   0   0   0   0   0   0   0   1
+cont      1   1   0   0   0   1   1   1   0   1   1*  0*  1   1*  0   0
+shift     1   1   0   0   0   1   1   1   1   1   1   1   1   1*  0   0
+rem       Y   Z   .   .   E   G   K   L   B   C*  D*  C*  F*  W*  .   U
+```
+
+**Main lesson:** inserting in the middle of a run in the middle of a cluster combines the run lookup from example 3 (counting `occ` bits and run heads) with a head that doesn't change. The run boundaries behind the insertion point still move right, even though the head of the q=5 run stays where it is.
+
+## Example 6: End of a run, in the middle of a cluster
+
+**Insert `I` at q=5.** The q=5 run already exists (`occ[5]=1`), so no occupancy bit changes. The lookup is the same as before: start at the cluster start (slot 4), count the `occ` bits up to q=5 (it's the 2nd run), and skip to the 2nd run head, which is slot 8. The run is `B` (slot 8), `D` (slot 9). `I` sorts after `D`, so it goes at the end of the run, in slot 10. That slot was the head of the q=7 run, so `C`, `F`, `W` shift one slot right. The q=7 run ends in slot 13, which was empty.
+
+**Changes needed:**
+
+- `occ` doesn't change (`occ[5]` is already 1).
+- `B` and `D` don't move, so slots 8 and 9 are untouched.
+- `I` goes into slot 10 as a continuation of the q=5 run (`cont=1`) and displaced (`shift=1`, since its home is slot 5). Slot 10 used to hold the head of the q=7 run, so `cont[10]`: 0 → 1.
+- `C` (q=7) moves to slot 11 as the head of its run, so `cont[11]`: 1 → 0.
+- `F` moves to slot 12 (`cont` stays 1).
+- `W` moves to slot 13, which was empty, so `cont[13]` and `shift[13]` become 1.
+- `rem` changes in slots 10 to 13.
+
+```
+slot      0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
+occ       0   0   0   0   1   1   0   1   0   0   0   0   0   0   0   1
+cont      1   1   0   0   0   1   1   1   0   1   1*  0*  1   1*  0   0
+shift     1   1   0   0   0   1   1   1   1   1   1   1   1   1*  0   0
+rem       Y   Z   .   .   E   G   K   L   B   D   I*  C*  F*  W*  .   U
+```
+
+**Differences from inserting `C` at q=5 (middle of the run):**
+
+- `D` no longer moves, because the new element goes after it. Only the q=7 run is displaced.
+- The changed `cont` bits are the same (slots 10, 11 and 13), but for different reasons. Here `cont[10]` flips because the new element takes the slot where the q=7 head used to be, and the q=7 head moves one slot right.
+- The new element is placed in what used to be the first slot of the next run. This shows that the end of a run is also the boundary of the next run, so inserting there always pushes the next run, even though the q=5 run itself is only extended.
+
+**Main lesson:** at the end of a run in the middle of a cluster, nothing in the run moves, but everything after the run does. This is different from an end-of-run insertion at the end of a cluster, where the new element would only take the free slot behind it and nothing else would move.
+
 ## What each example shows
 
 | Example | Main lesson                                                                                                                     |
-| ------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------- | --- |
 | 1       | No collision, so only `occ` and `rem` change.                                                                                   |
 | 2       | `occ` position and element position are independent. A new run goes after the earlier quotients' runs.                          |
 | 3       | Finding a run mid-cluster requires counting `occ` bits and run heads. Metadata bits stay with the slot while the elements move. |
 | 4       | The shift wraps around the table, and the head of the run doesn't move.                                                         |
+| 5       | Middle of a run mid-cluster: the head stays put, but `D` and every run behind the insertion point shift right.                  |
+| 6       | End of a run mid-cluster: the run itself doesn't move, but the new element takes the next run's head slot and pushes that run.  |     |
 
 # EXAMPLES FOR REMOVING
 
