@@ -32,18 +32,16 @@ const usedFingerprints = new Set();
 const fingerprintOf = (filter, item) => {
   const value = String(item);
   const rawFingerprint =
-    (hashWithSeed(value, 1) & filter.mask) >>> 0;
+    (hashWithSeed(value, 1) & ((1 << filter.p) - 1)) >>> 0;
   return {
-    index: hashWithSeed(value, 0) % filter.buckets.length,
+    index: hashWithSeed(value, 0) % filter.b,
     fingerprint: rawFingerprint || 1
   };
 };
 
 const alternateIndex = (filter, index, fingerprint) => {
-  const delta =
-    hashWithSeed(String(fingerprint), 2) %
-    filter.buckets.length;
-  return (index ^ delta) % filter.buckets.length;
+  const delta = hashWithSeed(String(fingerprint), 2) % filter.b;
+  return (index ^ delta) % filter.b;
 };
 
 const candidateBuckets = (filter, item) => {
@@ -53,7 +51,8 @@ const candidateBuckets = (filter, item) => {
 
 const makeFilter = () => {
   const filter = createCuckooFilter(FILTER_CAPACITY, 0.01);
-  assert.strictEqual(filter.buckets.length, 8);
+  assert.strictEqual(filter.b, 8);
+  assert(!Object.hasOwn(filter, "mask"));
   assert.strictEqual(filter.c, 0);
   return filter;
 };
@@ -64,7 +63,7 @@ const runFingerprintWidthScenario = () => {
     FILTER_CAPACITY,
     maximumEpsilon
   );
-  assert.strictEqual(maximumWidthFilter.mask, 2 ** 24 - 1);
+  assert.strictEqual(maximumWidthFilter.p, 24);
   assert.throws(
     () =>
       createCuckooFilter(FILTER_CAPACITY, maximumEpsilon / 2),
@@ -127,10 +126,10 @@ const assertStructureAndContents = (
     `count mismatch${context}`
   );
   assert(filter.c <= filter.n, `capacity exceeded${context}`);
-  assert.strictEqual(filter.buckets.length, 8);
+  assert.strictEqual(filter.b, 8);
 
   let physicalEntryCount = 0;
-  for (let index = 0; index < filter.buckets.length; index++) {
+  for (let index = 0; index < filter.b; index++) {
     const bucket = filter.buckets[index];
     assert(
       bucket.length <= BUCKET_SIZE,
@@ -140,7 +139,7 @@ const assertStructureAndContents = (
       physicalEntryCount++;
       assert(Number.isInteger(fingerprint));
       assert(
-        fingerprint > 0 && fingerprint <= filter.mask,
+        fingerprint > 0 && fingerprint <= (1 << filter.p) - 1,
         `fingerprint out of range in bucket ${index}${context}`
       );
     }
