@@ -12,9 +12,11 @@
  *   structure and membership after each operation.
  */
 const assert = require("assert");
+
 const {
   hashWithSeed
 } = require("../00___general_functions/hashWithSeed");
+
 const {
   createCuckooFilter,
   add,
@@ -24,7 +26,6 @@ const {
 
 const FILTER_CAPACITY = 16;
 const BUCKET_SIZE = 4;
-const MAX_FINGERPRINT_BITS = 24;
 const itemCache = new Map();
 const usedFingerprints = new Set();
 
@@ -58,16 +59,12 @@ const makeFilter = () => {
 };
 
 const runFingerprintWidthScenario = () => {
-  const maximumEpsilon =
-    (2 * BUCKET_SIZE) / 2 ** MAX_FINGERPRINT_BITS;
+  const maximumEpsilon = (2 * BUCKET_SIZE) / 2 ** 24;
   const maximumWidthFilter = createCuckooFilter(
     FILTER_CAPACITY,
     maximumEpsilon
   );
-  assert.strictEqual(
-    maximumWidthFilter.mask,
-    2 ** MAX_FINGERPRINT_BITS - 1
-  );
+  assert.strictEqual(maximumWidthFilter.mask, 2 ** 24 - 1);
   assert.throws(
     () =>
       createCuckooFilter(FILTER_CAPACITY, maximumEpsilon / 2),

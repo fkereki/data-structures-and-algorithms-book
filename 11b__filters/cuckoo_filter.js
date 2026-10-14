@@ -84,6 +84,8 @@ const add = (filter, item) => {
     }
   }
 
+  // Save the buckets before kicking fingerprints, so a failed insertion
+  // can restore the filter to its original state.
   const originalBuckets = filter.buckets.map((bucket) =>
     bucket.slice()
   );
@@ -106,7 +108,8 @@ const add = (filter, item) => {
     }
   }
 
-  // Failed relocation must leave the filter unchanged.
+  // No empty slot was found. Restore each bucket from the snapshot because
+  // the kicks may have moved existing fingerprints between buckets.
   for (
     let bucketIndex = 0;
     bucketIndex < filter.buckets.length;
@@ -149,7 +152,6 @@ const remove = (filter, item) => {
 
 module.exports = {
   createCuckooFilter,
-  createCuckooFIlter: createCuckooFilter,
   add,
   find,
   remove
