@@ -1,4 +1,6 @@
-const { randomInt } = require("./random");
+const {
+  randomInt
+} = require("../00___general_functions/random");
 
 const naivePerm = (arr) => {
   const n = arr.length;

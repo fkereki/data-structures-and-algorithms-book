@@ -1,6 +1,12 @@
-const { randomBit } = require("./random");
+const {
+  randomBit
+} = require("../00___general_functions/random");
 
-const coinTossingShuffle = (arr, from = 0, to = arr.length - 1) => {
+const coinTossingShuffle = (
+  arr,
+  from = 0,
+  to = arr.length - 1
+) => {
   const len = to - from + 1;
   if (len < 2) {
     // nothing to do

@@ -1,7 +1,14 @@
-const { randomInt } = require("./random");
+const {
+  randomInt
+} = require("../00___general_functions/random");
 const singlePickAll = (arr) => arr[randomInt(0, arr.length)];
 
-const repeatedPick = (arr, k, from = 0, to = arr.length - 1) => {
+const repeatedPick = (
+  arr,
+  k,
+  from = 0,
+  to = arr.length - 1
+) => {
   const sample = Array(k);
   for (let i = 0; i < k; i++) {
     sample[i] = arr[randomInt(from, to + 1)];

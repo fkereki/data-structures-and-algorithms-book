@@ -1,13 +1,18 @@
 const fact = (n) => (n < 2 ? 1 : n * fact(n - 1));
 
-const { randomInt } = require("./random");
+const {
+  randomInt
+} = require("../00___general_functions/random");
 
 const robsonShuffle = (arr, from = 0, to = arr.length - 1) => {
   const n = to - from + 1;
   let r = randomInt(0, fact(n));
   for (let i = n; i > 1; i--) {
     const q = r % i;
-    [arr[from + i - 1], arr[from + q]] = [arr[from + q], arr[from + i - 1]];
+    [arr[from + i - 1], arr[from + q]] = [
+      arr[from + q],
+      arr[from + i - 1]
+    ];
     r = Math.floor(r / i);
   }
   return arr;
