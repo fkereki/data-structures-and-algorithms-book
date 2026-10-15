@@ -19,5 +19,4 @@ const floydShuffle = (arr, from = 0, to = arr.length - 1) => {
   return arr;
 };
 
-const logResults = require("./log_results_shuffle");
-logResults(floydShuffle, 3, 6, 9, 48000);
+module.exports = { floydShuffleN, floydShuffle };

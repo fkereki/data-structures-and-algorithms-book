@@ -18,9 +18,7 @@ const robsonShuffle = (arr, from = 0, to = arr.length - 1) => {
   return arr;
 };
 
-const logResults = require("./log_results_shuffle");
-logResults(robsonShuffle, 3, 6, 9, 24000);
-logResults(robsonShuffle, 0, 3, 4, 48000);
+module.exports = { robsonShuffle };
 
 /*
 const robsonShuffle = (arr, n = arr.length) => {

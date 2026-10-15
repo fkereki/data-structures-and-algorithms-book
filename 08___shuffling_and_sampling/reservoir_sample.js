@@ -28,6 +28,4 @@ const reservoirSample2 = (arr, k) => {
   return arr.slice(0, k);
 };
 
-const logResults = require("./log_results_sample");
-logResults(reservoirSample, 4, 6);
-logResults(reservoirSample2, 5, 7);
+module.exports = { reservoirSample, reservoirSample2 };

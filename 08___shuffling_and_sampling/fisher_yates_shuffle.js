@@ -26,7 +26,4 @@ const fisherYatesShuffle2 = (
   return arr;
 };
 
-const logResults = require("./log_results_shuffle");
-logResults(fisherYatesShuffle, 3, 6, 9, 20_000);
-console.log("-----------");
-logResults(fisherYatesShuffle2, 3, 6, 9, 20_000);
+module.exports = { fisherYatesShuffle, fisherYatesShuffle2 };

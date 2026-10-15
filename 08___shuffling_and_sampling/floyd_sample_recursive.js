@@ -16,6 +16,4 @@ const floydSampleKofN = (k, n) => {
 const floydSample = (arr, k) =>
   floydSampleKofN(k, arr.length).map((v) => arr[v]);
 
-const logResults = require("./log_results_sample");
-logResults(floydSample, 3, 6, 40_000);
-logResults(floydSample, 5, 7, 40_000);
+module.exports = { floydSampleKofN, floydSample };

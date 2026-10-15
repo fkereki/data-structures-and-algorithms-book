@@ -11,10 +11,4 @@ const naivePerm = (arr) => {
   return arr;
 };
 
-/*
-it works in n^n ways, but
-n^n isn't a multiple of n!
-*/
-
-const logResults = require("../log_results");
-logResults(naivePerm, 4, 4000);
+module.exports = { naivePerm };

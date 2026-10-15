@@ -12,5 +12,4 @@ const fisherYatesSample = (arr, k) => {
   return arr.slice(0, k);
 };
 
-const logResults = require("./log_results_sample");
-logResults(fisherYatesSample, 4, 6);
+module.exports = { fisherYatesSample };

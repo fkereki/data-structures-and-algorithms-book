@@ -40,5 +40,4 @@ const coinTossingShuffle = (
   return arr;
 };
 
-const logResults = require("./log_results_shuffle");
-logResults(coinTossingShuffle, 4, 4000);
+module.exports = { coinTossingShuffle };
