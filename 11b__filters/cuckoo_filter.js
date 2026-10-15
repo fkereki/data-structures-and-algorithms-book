@@ -10,6 +10,10 @@ const {
   randomInt
 } = require("../00___general_functions/random");
 
+const {
+  singlePickAll
+} = require("../08___shuffling_and_sampling/single_pick");
+
 const EPSILON = 0.01;
 const BUCKET_SIZE = 4;
 const MAX_KICKS = 500;
@@ -80,13 +84,14 @@ const add = (filter, item) => {
   // Save each bucket just before its first change, so failed relocation
   // only needs to restore buckets that were touched.
   const originalBuckets = new Map();
-  let index = indices[randomInt(0, indices.length)];
+  let index = singlePickAll(indices);
   let carriedFingerprint = fingerprint;
   for (let kick = 0; kick < MAX_KICKS; kick++) {
     const bucket = filter.buckets[index];
     if (!originalBuckets.has(index)) {
       originalBuckets.set(index, bucket.slice());
     }
+
     const slot = randomInt(0, bucket.length);
     [carriedFingerprint, bucket[slot]] = [
       bucket[slot],
