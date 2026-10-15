@@ -84,9 +84,11 @@ const add = (filter, item) => {
   // Save each bucket just before its first change, so failed relocation
   // only needs to restore buckets that were touched.
   const originalBuckets = new Map();
+
   let index = singlePickAll(indices);
   let carriedFingerprint = fingerprint;
   for (let kick = 0; kick < MAX_KICKS; kick++) {
+    // Save the original bucket if it hasn't been saved yet.
     const bucket = filter.buckets[index];
     if (!originalBuckets.has(index)) {
       originalBuckets.set(index, bucket.slice());
