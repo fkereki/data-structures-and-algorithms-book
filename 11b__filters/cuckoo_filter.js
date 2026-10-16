@@ -15,7 +15,6 @@ const {
 } = require("../08___shuffling_and_sampling/single_pick");
 
 const EPSILON = 0.01;
-const BUCKET_SIZE = 4;
 const MAX_KICKS = 500;
 
 const createCuckooFilter = (n, eps = EPSILON) => {
@@ -29,20 +28,24 @@ const createCuckooFilter = (n, eps = EPSILON) => {
     throw new Error("Cuckoo filter: bad parameters");
   }
 
+  // 4 slots is the usual number; it could go up to 8 or 16
+  const s = 4;
+  const b = nextPowerOfTwo(n / (s * 0.95));
+
   // A bucket with f fingerprint bits has a false-positive rate of about
   // 2 * bucketSize / 2^f. Round the bucket count up to a power of two so
   // the alternate-bucket calculation can use a mask.
-  const p = Math.ceil(Math.log2((2 * BUCKET_SIZE) / eps));
+  const p = Math.ceil(Math.log2((2 * s) / eps));
   if (p > 24) {
     throw new Error(
       "Cuckoo filter: epsilon exceeds 24-bit fingerprint limit"
     );
   }
-  const b = nextPowerOfTwo(n / (BUCKET_SIZE * 0.95));
 
   return {
     n,
     b,
+    s,
     p,
     c: 0,
     buckets: Array.from({ length: b }, () => [])
@@ -74,7 +77,7 @@ const add = (filter, item) => {
 
   const { fingerprint, indices } = twoBuckets(filter, item);
   for (const index of indices) {
-    if (filter.buckets[index].length < BUCKET_SIZE) {
+    if (filter.buckets[index].length < filter.s) {
       filter.buckets[index].push(fingerprint);
       filter.c++;
       return true;
@@ -101,7 +104,7 @@ const add = (filter, item) => {
     ];
     index = index2(filter, index, carriedFingerprint);
 
-    if (filter.buckets[index].length < BUCKET_SIZE) {
+    if (filter.buckets[index].length < filter.s) {
       filter.buckets[index].push(carriedFingerprint);
       filter.c++;
       return true;
