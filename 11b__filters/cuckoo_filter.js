@@ -15,6 +15,7 @@ const {
 } = require("../08___shuffling_and_sampling/single_pick");
 
 const EPSILON = 0.01;
+const ALPHA = 0.9;
 const MAX_KICKS = 500;
 
 const createCuckooFilter = (n, eps = EPSILON) => {
@@ -30,7 +31,7 @@ const createCuckooFilter = (n, eps = EPSILON) => {
 
   // 4 slots is the usual number; it could go up to 8 or 16
   const s = 4;
-  const b = nextPowerOfTwo(n / (s * 0.95));
+  const b = nextPowerOfTwo(n / (s * ALPHA));
 
   // A bucket with f fingerprint bits has a false-positive rate of about
   // 2 * bucketSize / 2^f. Round the bucket count up to a power of two so
@@ -53,13 +54,15 @@ const createCuckooFilter = (n, eps = EPSILON) => {
 };
 
 const fingerprintOf = (filter, item) =>
-  hashWithSeed(item, 1) & ((1 << filter.p) - 1) || 1;
+  hashWithSeed(item, 0) & ((1 << filter.p) - 1) || 1;
 
-const index1 = (filter, item) =>
-  hashWithSeed(item, 0) % filter.b;
+const hashBucket = (filter, item, seed) =>
+  hashWithSeed(item, seed) % filter.b;
+
+const index1 = (filter, item) => hashBucket(filter, item, 1);
 
 const index2 = (filter, index1, fingerprint) =>
-  index1 ^ hashWithSeed(fingerprint, 2) % filter.b;
+  index1 ^ hashBucket(filter, fingerprint, 2);
 
 const twoBuckets = (filter, item) => {
   const fingerprint = fingerprintOf(filter, item);
