@@ -63,7 +63,9 @@ const createXorFilter = (items, eps = EPSILON) => {
 
     const queue = [];
     degree.forEach((count, index) => {
-      if (count === 1) queue.push(index);
+      if (count === 1) {
+        queue.push(index);
+      }
     });
 
     const peeled = [];
@@ -75,7 +77,9 @@ const createXorFilter = (items, eps = EPSILON) => {
         for (const other of indices[itemIndex]) {
           degree[other]--;
           xors[other] ^= itemIndex;
-          if (degree[other] === 1) queue.push(other);
+          if (degree[other] === 1) {
+            queue.push(other);
+          }
         }
       }
     }
@@ -104,8 +108,10 @@ const createXorFilter = (items, eps = EPSILON) => {
 const find = (filter, value) => {
   if (filter.n === 0) return false;
   const [i1, i2, i3] = indicesOf(value, filter.seed, filter.s);
-  const fp = filter.b[i1] ^ filter.b[i2] ^ filter.b[i3];
-  return fp === fingerprintOf(value, filter.p);
+  return (
+    fingerprintOf(value, filter.p) ===
+    (filter.b[i1] ^ filter.b[i2] ^ filter.b[i3])
+  );
 };
 
 module.exports = { createXorFilter, find };
