@@ -44,15 +44,15 @@ const createXorFilter = (items, eps = EPSILON) => {
     return { n: 0, p, seed: 0, s: 0, b: [] };
   }
 
-  const s = Math.ceil(1.23 * items.length);
-  const size = 3 * s;
+  /* s = size of each of the three blocks */
+  const s = Math.ceil((1.23 * items.length) / 3); /* +32 */
 
   for (let seed = 0; seed < MAX_SEEDS; seed++) {
     const indices = items.map((item) =>
       indicesOf(item, seed, s)
     );
-    const degree = new Uint32Array(size);
-    const xors = new Uint32Array(size);
+    const degree = new Uint32Array(3 * s);
+    const xors = new Uint32Array(3 * s);
 
     indices.forEach((itemIndices, itemIndex) => {
       itemIndices.forEach((index) => {
@@ -85,7 +85,7 @@ const createXorFilter = (items, eps = EPSILON) => {
     }
 
     if (peeled.length === items.length) {
-      const b = new Uint32Array(size);
+      const b = new Uint32Array(3 * s);
       const mask = (1 << p) - 1;
       for (let j = peeled.length - 1; j >= 0; j--) {
         const [itemIndex, index] = peeled[j];

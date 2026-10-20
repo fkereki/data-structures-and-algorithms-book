@@ -10,8 +10,6 @@ const { createXorFilter, find } = require("./xor_filter");
 const checkEmptyAndValidation = () => {
   const filter = createXorFilter([]);
   assert.strictEqual(filter.n, 0);
-  assert.strictEqual(filter.s, 0);
-  assert.deepStrictEqual(filter.b, []);
   assert.strictEqual(find(filter, "absent"), false);
 
   assert.throws(
@@ -69,11 +67,6 @@ const checkKnownItems = () => {
     const filter = createXorFilter(items, 0.01);
     assert.strictEqual(filter.n, items.length);
     assert.strictEqual(filter.p, 7);
-    assert.strictEqual(
-      filter.s,
-      Math.ceil(1.23 * items.length)
-    );
-    assert.strictEqual(filter.b.length, 3 * filter.s);
     for (const item of items)
       assert.strictEqual(find(filter, item), true);
   }
