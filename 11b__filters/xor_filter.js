@@ -41,7 +41,7 @@ const createXorFilter = (items, eps = EPSILON) => {
   }
 
   if (items.length === 0) {
-    return { n: 0, p, seed: 0, s: 0, b: [] };
+    return { p, seed: 0, s: 0, b: [] };
   }
 
   /* s = size of each of the three blocks */
@@ -51,18 +51,18 @@ const createXorFilter = (items, eps = EPSILON) => {
     const indices = items.map((item) =>
       indicesOf(item, seed, s)
     );
-    const degree = new Uint32Array(3 * s);
+    const itemCounts = new Uint32Array(3 * s);
     const xors = new Uint32Array(3 * s);
 
     indices.forEach((itemIndices, itemIndex) => {
       itemIndices.forEach((index) => {
-        degree[index]++;
+        itemCounts[index]++;
         xors[index] ^= itemIndex;
       });
     });
 
     const queue = [];
-    degree.forEach((count, index) => {
+    itemCounts.forEach((count, index) => {
       if (count === 1) {
         queue.push(index);
       }
@@ -71,13 +71,13 @@ const createXorFilter = (items, eps = EPSILON) => {
     const peeled = [];
     for (let head = 0; head < queue.length; head++) {
       const index = queue[head];
-      if (degree[index] === 1) {
+      if (itemCounts[index] === 1) {
         const itemIndex = xors[index];
         peeled.push([itemIndex, index]);
         for (const other of indices[itemIndex]) {
-          degree[other]--;
+          itemCounts[other]--;
           xors[other] ^= itemIndex;
-          if (degree[other] === 1) {
+          if (itemCounts[other] === 1) {
             queue.push(other);
           }
         }
@@ -96,7 +96,7 @@ const createXorFilter = (items, eps = EPSILON) => {
         b[index] = (fp ^ b[index]) & mask;
       }
 
-      return { n: items.length, p, seed, s, b };
+      return { p, seed, s, b };
     }
   }
 
@@ -106,7 +106,7 @@ const createXorFilter = (items, eps = EPSILON) => {
 };
 
 const find = (filter, value) => {
-  if (filter.n === 0) return false;
+  if (filter.s === 0) return false;
   const [i1, i2, i3] = indicesOf(value, filter.seed, filter.s);
   return (
     fingerprintOf(value, filter.p) ===
