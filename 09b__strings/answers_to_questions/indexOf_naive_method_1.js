@@ -1,17 +1,13 @@
 Object.defineProperty(String.prototype, "indexOf_naive", {
   configurable: true,
   writable: true,
-  value: function (search, p = 0) {
-    const text = this;
+  value: function (s, p = 0) {
+    const t = this;
 
-    for (let i = p; i <= text.length - search.length; i++) {
+    for (let i = p; i <= t.length - s.length; i++) {
       let j;
-      for (
-        j = 0;
-        j < search.length && text[i + j] === search[j];
-        j++
-      ) {}
-      if (j === search.length) {
+      for (j = 0; j < s.length && t[i + j] === s[j]; j++) {}
+      if (j === s.length) {
         return i;
       }
     }
