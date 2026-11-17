@@ -4,15 +4,15 @@ const indexOf_kmp = (t, s, p = 0) => {
     return p;
   }
 
-  const prefixLengths = new Array(s.length).fill(0);
-  for (let i = 1, length = 0; i < s.length; ) {
-    if (s[i] === s[length]) {
-      prefixLengths[i] = ++length;
+  const lps = new Array(s.length).fill(0);
+  for (let i = 1, l = 0; i < s.length; ) {
+    if (s[i] === s[l]) {
+      lps[i] = ++l;
       i++;
-    } else if (length > 0) {
-      length = prefixLengths[length - 1];
+    } else if (l > 0) {
+      l = lps[l - 1];
     } else {
-      prefixLengths[i] = 0;
+      lps[i] = 0;
       i++;
     }
   }
@@ -25,7 +25,7 @@ const indexOf_kmp = (t, s, p = 0) => {
         return i - j;
       }
     } else if (j > 0) {
-      j = prefixLengths[j - 1];
+      j = lps[j - 1];
     } else {
       i++;
     }
