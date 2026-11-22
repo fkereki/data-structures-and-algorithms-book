@@ -1,11 +1,8 @@
 // Before calling, check that t and s are strings and p is an integer from 0 to t.length.
-const indexOf_kmp = (t, s, p = 0) => {
-  if (s.length === 0) {
-    return p;
-  }
-
-  const lps = new Array(s.length).fill(0);
-  for (let i = 1, l = 0; i < s.length; ) {
+const buildLps = (s) => {
+  const m = s.length;
+  const lps = new Array(m).fill(0);
+  for (let i = 1, l = 0; i < m; ) {
     if (s[i] === s[l]) {
       lps[i] = ++l;
       i++;
@@ -16,12 +13,24 @@ const indexOf_kmp = (t, s, p = 0) => {
       i++;
     }
   }
+  return lps;
+};
 
-  for (let i = p, j = 0; i < t.length; ) {
+const indexOf_kmp = (t, s, p = 0) => {
+  const n = t.length;
+  const m = s.length;
+
+  if (m === 0) {
+    return p;
+  }
+
+  const lps = buildLps(s);
+
+  for (let i = p, j = 0; n - i >= m - j; ) {
     if (t[i] === s[j]) {
       i++;
       j++;
-      if (j === s.length) {
+      if (j === m) {
         return i - j;
       }
     } else if (j > 0) {
