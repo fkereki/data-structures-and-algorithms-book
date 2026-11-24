@@ -44,3 +44,4 @@ const indexOf_kmp = (t, s, p = 0) => {
 };
 
 module.exports = indexOf_kmp;
+module.exports.buildLps = buildLps;
